@@ -1,7 +1,9 @@
+import os
 import xml.etree.ElementTree as ET
 from pprint import pprint
 import json
 import re
+import transliterate
 
 
 class PlanParser:
@@ -181,9 +183,7 @@ class PlanParser:
                     for exception in attribute_exceptions:
                         if exception in child_attr_dict:
                             child_attr_dict.pop(exception)
-                for old_key in list(child_attr_dict):
-                    new_key = self.TRANSLITE_DICT[old_key]
-                    child_attr_dict[new_key] = child_attr_dict.pop(old_key)
+                child_attr_dict = self.translate_keys(child_attr_dict)
                 attr_dict[child_tag].append(child_attr_dict)
             result.append(attr_dict)
         return result
@@ -193,28 +193,16 @@ class PlanParser:
         for high_tree in self.__root_node.findall(tag_path):
             attr_dict = {}
             for tag in high_tree.iter("ПрочаяПрактика"):
-                attr_dict = tag.attrib
-
-                for old_key in list(attr_dict):
-                    new_key = self.TRANSLITE_DICT[old_key]
-                    attr_dict[new_key] = attr_dict.pop(old_key)
-                    if "," in attr_dict[new_key] or "&" in attr_dict[new_key]:
-                        attr_dict[new_key] = re.split(r"&|,", attr_dict[new_key].replace(" ", ""))
-
+                attr_dict = self.translate_keys(tag.attrib)
+                semestr_list = list()
                 for child_object in list(tag):
                     attr_child_dict = child_object.attrib
                     if attribute_exception is not None:
-                        for attribute in attribute_exception:
-                            if attribute in attr_child_dict:
-                                attr_child_dict.pop(attribute)
-                    key = self.TRANSLITE_DICT[child_object.tag]
-                    sorted_dict = dict()
-                    for old_key in list(attr_child_dict):
-                        new_key = self.TRANSLITE_DICT[old_key]
-                        sorted_dict[new_key] = attr_child_dict[old_key]
-                    attr_child_dict = dict()
-                    attr_child_dict[key] = sorted_dict
-                    attr_dict = attr_dict | attr_child_dict
+                        attr_child_dict = self.__sorted_dict(dict_for_sort=attr_child_dict, exceptions_list=attribute_exception)
+                    else:
+                        attr_child_dict = self.translate_keys(old_dict=attr_child_dict)
+                    semestr_list.append(attr_child_dict)
+                    attr_dict["semestr"] = semestr_list
 
             result.append(attr_dict)
         return result
@@ -228,16 +216,40 @@ class PlanParser:
                 for exception in exception_list:
                     if exception in sorted_attr_dict:
                         sorted_attr_dict.pop(exception)
-            for old_key in list(sorted_attr_dict):
-                new_key = self.TRANSLITE_DICT[old_key]
-                sorted_attr_dict[new_key] = sorted_attr_dict.pop(old_key)
+            sorted_attr_dict = self.translate_keys(sorted_attr_dict)
             attr_dict = sorted_attr_dict
             result.append(attr_dict)
         return result
 
+    def __sorted_dict(self, dict_for_sort, exceptions_list):
+        for attribute in exceptions_list:
+            if attribute in dict_for_sort:
+                dict_for_sort.pop(attribute)
+        sorted_dict = self.translate_keys(dict_for_sort)
+        return sorted_dict
+
+    def translate_keys(self, old_dict: dict) -> dict:
+        new_dict = dict()
+        for old_key in list(old_dict):
+            try:
+                new_key = self.TRANSLITE_DICT[old_key]
+            except Exception:
+                print("Нет соответствия, ключ создан автоматически")
+                new_key = transliterate.translit(old_key, "ru", reversed=True)
+            if "," in old_dict[old_key] or "&" in old_dict[old_key] and new_key is not "name":
+                new_dict[new_key] = re.split(r"&|,", old_dict[old_key].replace(" ", ""))
+            else:
+                new_dict[new_key] = old_dict[old_key]
+        return new_dict
 
 
-first_document = PlanParser(xml_path="C:/Users/epick/Desktop/Новая папка/140302_62-23-Д-153(1).plm.xml")
-first_document_data = first_document.xml_data
+def check_all_files(path="C:/Users/epick/Desktop/Новая папка/"):
+    files = os.listdir(path)
+    for file in files:
+        first_document = PlanParser(xml_path=f"{path}/{file}")
+        pprint(first_document.xml_data)
 
-pprint(first_document.xml_data)
+# document = PlanParser(xml_path="C:/Users/epick/Desktop/Новая папка/130302_62-23-Д-233(1).plm.xml")
+# pprint(document.xml_data)
+check_all_files()
+
