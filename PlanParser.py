@@ -18,10 +18,16 @@ class PlanParser:
         "УчебныеПрактики": "План/СпецВидыРаботНов/",
         "Компетенции": "План/Компетенции/"
     }
+
+    TYPES = {
+        "exam" : 1,
+        "zach" : 2,
+        "zachO" : 3,
+    }
+
     TRANSLITE_DICT = {
         "НовЦикл": "new_cycle",
         "Дис": "name",
-        "НовИдДисциплины": "new_cycle_id",
         "НовИдДисциплины": "new_cycle_id",
         "Цикл": "cycle",
         "ИдетификаторДисциплины": "discipline_id",
@@ -185,7 +191,14 @@ class PlanParser:
                             child_attr_dict.pop(exception)
                 child_attr_dict = self.translate_keys(child_attr_dict)
                 attr_dict[child_tag].append(child_attr_dict)
-            result.append(attr_dict)
+            if "course_work" in list(attr_dict):
+                for course_work in attr_dict["course_work"]:
+                    course_work["type_applcation"] = 4
+            if "course_project" in list(attr_dict):
+                for course_project in attr_dict["course_project"]:
+                    course_project["type_application"] = 5
+            if len(attr_dict) != 0:
+                result.append(attr_dict)
         return result
 
     def __pars_practice(self, tag_path: str, attribute_exception: list | None = None):
@@ -203,8 +216,8 @@ class PlanParser:
                         attr_child_dict = self.translate_keys(old_dict=attr_child_dict)
                     semestr_list.append(attr_child_dict)
                     attr_dict["semestr"] = semestr_list
-
-            result.append(attr_dict)
+            if len(attr_dict) != 0:
+                result.append(attr_dict)
         return result
 
     def __pars_competences(self, tag_path: str, attribute_list: list | None = None, exception_list: list | None = None) -> list:
@@ -225,15 +238,19 @@ class PlanParser:
         for attribute in exceptions_list:
             if attribute in dict_for_sort:
                 dict_for_sort.pop(attribute)
+
         sorted_dict = self.translate_keys(dict_for_sort)
         return sorted_dict
 
     def translate_keys(self, old_dict: dict) -> dict:
         new_dict = dict()
         for old_key in list(old_dict):
-            try:
+            if old_key in self.TRANSLITE_DICT:
                 new_key = self.TRANSLITE_DICT[old_key]
-            except Exception:
+                if new_key in self.TYPES:
+                    new_dict["type_application"] = self.TYPES[new_key]
+                    continue
+            else:
                 print("Нет соответствия, ключ создан автоматически")
                 new_key = transliterate.translit(old_key, "ru", reversed=True)
             if "," in old_dict[old_key] or "&" in old_dict[old_key] and new_key is not "name":
@@ -243,13 +260,13 @@ class PlanParser:
         return new_dict
 
 
-def check_all_files(path="C:/Users/epick/Desktop/Новая папка/"):
-    files = os.listdir(path)
-    for file in files:
-        first_document = PlanParser(xml_path=f"{path}/{file}")
-        pprint(first_document.xml_data)
+# def check_all_files(path="C:/Users/epick/Desktop/Новая папка/"):
+#     files = os.listdir(path)
+#     for file in files:
+#         first_document = PlanParser(xml_path=f"{path}/{file}")
+#         pprint(first_document.xml_data)
+# check_all_files()
 
-# document = PlanParser(xml_path="C:/Users/epick/Desktop/Новая папка/130302_62-23-Д-233(1).plm.xml")
-# pprint(document.xml_data)
-check_all_files()
+document = PlanParser(xml_path="./xml plans/090303_62-24-Д-294(1).plm.xml")
+pprint(document.xml_data)
 
