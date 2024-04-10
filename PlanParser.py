@@ -164,7 +164,7 @@ class PlanParser:
                             attr_dict[attr_list_key] = re.split(r',|&', attr_value.replace(" ", ""))
                         else:
                             attr_dict[attr_list_key] = attr_value
-            if "модуль" in attr_dict["name"].lower():
+            if "модуль" in attr_dict["name"].lower() or "практика" in attr_dict["name"].lower():
                 continue
 
             getted_child_tags = list(tag)
@@ -267,6 +267,6 @@ class PlanParser:
 #         pprint(first_document.xml_data)
 # check_all_files()
 
-document = PlanParser(xml_path="./xml plans/090303_62-24-Д-294(1).plm.xml")
+document = PlanParser(xml_path="C:/Users/epick/Desktop/Новая папка/140402_68-22-Д-651(2).plm.xml")
 pprint(document.xml_data)
 
