@@ -193,10 +193,10 @@ class PlanParser:
                 attr_dict[child_tag].append(child_attr_dict)
             if "course_work" in list(attr_dict):
                 for course_work in attr_dict["course_work"]:
-                    course_work["type_applcation"] = 4
+                    course_work["type_attestation"] = 4
             if "course_project" in list(attr_dict):
                 for course_project in attr_dict["course_project"]:
-                    course_project["type_application"] = 5
+                    course_project["type_attestation"] = 5
             if len(attr_dict) != 0:
                 result.append(attr_dict)
         return result
@@ -248,7 +248,7 @@ class PlanParser:
             if old_key in self.TRANSLITE_DICT:
                 new_key = self.TRANSLITE_DICT[old_key]
                 if new_key in self.TYPES:
-                    new_dict["type_application"] = self.TYPES[new_key]
+                    new_dict["type_attestation"] = self.TYPES[new_key]
                     continue
             else:
                 print("Нет соответствия, ключ создан автоматически")
