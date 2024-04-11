@@ -36,7 +36,7 @@ class PlanParser:
         "СР": "SR",
         "ЧасовИнтер": "HoursInter",
         "КомпетенцииКоды": "competenciescodes",
-        "Компетенции": "competenciescodes",
+        "Компетенции": "competencies",
         "Кафедра": "department",
         "Раздел": "chapter",
         "ПодлежитИзучению": "subject_study",
@@ -214,10 +214,14 @@ class PlanParser:
                         attr_child_dict = self.__sorted_dict(dict_for_sort=attr_child_dict, exceptions_list=attribute_exception)
                     else:
                         attr_child_dict = self.translate_keys(old_dict=attr_child_dict)
+
                     semestr_list.append(attr_child_dict)
                     attr_dict["semestr"] = semestr_list
+
             if len(attr_dict) != 0:
                 result.append(attr_dict)
+                if "competencies" in list(attr_dict):
+                    attr_dict["competenciescodes"] = attr_dict.pop("competencies")
         return result
 
     def __pars_competences(self, tag_path: str, attribute_list: list | None = None, exception_list: list | None = None) -> list:
