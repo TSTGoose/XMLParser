@@ -36,7 +36,7 @@ class PlanParser:
         "СР": "SR",
         "ЧасовИнтер": "HoursInter",
         "КомпетенцииКоды": "competenciescodes",
-        "Компетенции": "competencies",
+        "Компетенции": "competenciescodes",
         "Кафедра": "department",
         "Раздел": "chapter",
         "ПодлежитИзучению": "subject_study",
