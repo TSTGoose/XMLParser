@@ -59,7 +59,7 @@ class PlanParser:
         "КонтрРаб": "controlWork",
         "Контр": "control",
         "КурсовойПроект": "course_project",
-        "КурсоваяРабота": "course_work",
+        "КурсоваяРабота": "course_project",
         "Тип": "type",
         "Наименование": "name",
         "ЗЕТвНеделе": "ZETinWeek",
