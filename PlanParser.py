@@ -162,6 +162,8 @@ class PlanParser:
                     if attr_value is not None:
                         if "&" in attr_value or "," in attr_value and attr_list_key is not "name":
                             attr_dict[attr_list_key] = re.split(r',|&', attr_value.replace(" ", ""))
+                        elif attr_list_key is "competencies" or attr_list_key is "competenciescodes":
+                            attr_dict[attr_list_key] = [attr_value]
                         else:
                             attr_dict[attr_list_key] = attr_value
             if "модуль" in attr_dict["name"].lower() or "практика" in attr_dict["name"].lower():
@@ -259,6 +261,8 @@ class PlanParser:
                 new_key = transliterate.translit(old_key, "ru", reversed=True)
             if "," in old_dict[old_key] or "&" in old_dict[old_key] and new_key is not "name":
                 new_dict[new_key] = re.split(r"&|,", old_dict[old_key].replace(" ", ""))
+            elif new_key is "competencies" or new_key is "competenciescodes":
+                new_dict[new_key] = [old_dict[old_key]]
             else:
                 new_dict[new_key] = old_dict[old_key]
         return new_dict
